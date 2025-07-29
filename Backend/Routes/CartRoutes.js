@@ -5,7 +5,7 @@ const { authenticateUser } = require('../middleware/auth'); // your JWT/auth mid
 
 router.post('/add', authenticateUser, cartController.addToCart);
 router.get('/view', authenticateUser, cartController.viewCart);
-router.delete('/remove/:bookId', authenticateUser, cartController.removeFromCartByID);
+router.delete('/remove-items', authenticateUser, cartController.removeFromCart);
 router.put('/update-quantity', authenticateUser, cartController.updateCartItemQuantity);
 
 module.exports = router;

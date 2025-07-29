@@ -1,23 +1,41 @@
 const express = require('express');
 const router = express.Router();
-const { addBook, getAllBooks, getBookById, updateBook, deleteBook } = require('../Controllers/BookController');
+const { addBook, getAllBooks, getBookById, updateBook, deleteBook, getNewArrivals } = require('../Controllers/BookController');
+const { getFrequentlyBoughtBooks } = require('../Controllers/OrderController');
+const { authenticateUser } = require('../middleware/auth');
+const isAdmin = require('../middleware/isAdmin');
 
-// Placeholder for authentication middleware
-const fakeAuth = (req, res, next) => {
-    // Simulate an admin user for now
-    req.user = { role: 'admin' };
-    next();
-};
+const multer = require('multer');
+const path = require('path');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../uploads/'));
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + '-' + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
 
-// Route to add a new book (admin only)
-router.post('/add', fakeAuth, addBook);
+// Add a new book (admin only)
+router.post('/add', authenticateUser, isAdmin, upload.single('bookImage'), addBook);
+
 // List all books
 router.get('/', getAllBooks);
+
+// List new arrivals
+router.get('/new-arrivals', getNewArrivals);
+
+// List frequently bought books
+router.get('/frequently-bought', getFrequentlyBoughtBooks);
+
 // Get a book by ID
 router.get('/:id', getBookById);
-// Update a book (admin only)
-router.put('/:id', fakeAuth, updateBook);
-// Delete a book (admin only)
-router.delete('/:id', fakeAuth, deleteBook);
 
-module.exports = router; 
+// Update a book (admin only)
+router.put('/:id', authenticateUser, isAdmin, updateBook);
+
+// Delete a book (admin only)
+router.delete('/:id', authenticateUser, isAdmin, deleteBook);
+
+module.exports = router;

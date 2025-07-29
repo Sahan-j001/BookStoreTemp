@@ -25,7 +25,7 @@ const addressSchema = new mongoose.Schema({
 const orderSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'users',
         required: true
     },
     items: [orderItemSchema],

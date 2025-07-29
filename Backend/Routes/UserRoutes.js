@@ -15,6 +15,7 @@ router.put("/:id", UserController.updateUser);
 router.delete("/:id", UserController.deleteUser);
 router.post('/login', UserController.loginUser);
 router.post('/verify-otp', AuthController.verifyOtp);
+router.post('/admin/login', UserController.loginAdmin);
 
 //export
 module.exports = router;

@@ -51,6 +51,6 @@ const userSchema = new Schema({
 });
 
 module.exports = mongoose.model(
-    "UserModel", //file Name
+    "users", //file Name
     userSchema // function Name
 )

@@ -1,5 +1,6 @@
 const Cart = require('../Model/CartModel');
 const Book = require('../Model/BookModel');
+const User = require('../Model/UserModel')
 
 // Add book to cart
 const addToCart = async (req, res, next) => {
@@ -68,28 +69,26 @@ const viewCart = async (req, res, next) => {
 };
 
 // Remove item from cart by Book ID
-const removeFromCartByID = async (req, res, next) => {
-    const userId = req.user._id;
-    const { bookId } = req.params;
-
+const removeFromCart = async (req, res) => {
     try {
-        let cart = await Cart.findOne({ user: userId });
-
-        if (!cart) {
-            return res.status(404).json({ message: 'Cart not found.' });
-        }
-
-        // Filter out the book to be removed
-        cart.items = cart.items.filter(item => item.book.toString() !== bookId);
-
-        await cart.save();
-        return res.status(200).json({ message: 'Item removed from cart.', cart });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Error removing item from cart.' });
+      const { selectedItems } = req.body; // list of book IDs
+  
+      const cart = await Cart.findOne({ user: req.user._id });
+  
+      if (!cart) {
+        return res.status(404).json({ message: 'Cart not found' });
+      }
+  
+      cart.items = cart.items.filter(
+        item => !selectedItems.includes(item.book.toString())
+      );
+      await cart.save();
+  
+      res.json({ message: 'Selected items removed from cart' });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to remove items from cart' });
     }
-};
-
+  };
 // Update quantity of an item in the cart
 const updateCartItemQuantity = async (req, res, next) => {
     const userId = req.user._id;
@@ -122,6 +121,6 @@ const updateCartItemQuantity = async (req, res, next) => {
 module.exports = {
     addToCart,
     viewCart,
-    removeFromCartByID,
+    removeFromCart,
     updateCartItemQuantity
 };

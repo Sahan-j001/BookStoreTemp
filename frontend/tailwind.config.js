@@ -4,13 +4,68 @@ module.exports = {
     theme: {
       extend: {
         colors: {
-          loginBg: '#f4f7fa',
-          loginCard: '#ffffff',
-          loginPrimary: '#48448c',
-          loginAccent: '#26C6DA',
-          loginError: '#a1020a',
-          loginText: '#22223b',
-          loginMuted: '#8d8d8d',
+          defaultWhite: '#ffffff',
+          defaultGrey: 'rgb(141, 141, 141)',
+          defaultBlack: '#000000',
+          defaultRed: '#a1020a',
+          primaryBlue: '#48448c',
+          primaryCyan: '#26C6DA',
+          secondaryBlue: '#3182ce',
+          
+          primary: {
+            50: '#f1f0ff',
+            100: '#e5e3ff',
+            200: '#ccc9ff',
+            300: '#a8a1ff',
+            400: '#7c6eff',
+            500: '#48448c', 
+            600: '#3d3975',
+            700: '#332f61',
+            800: '#2a2651',
+            900: '#252143',
+          },
+          secondary: {
+            50: '#e0fbff',
+            100: '#b3f5ff',
+            200: '#80efff',
+            300: '#4de6ff',
+            400: '#26dcff',
+            500: '#26C6DA', 
+            600: '#21a5b6',
+            700: '#1c8491',
+            800: '#17636d',
+            900: '#124248',
+          },
+          accent: {
+            50: '#fef2f2',
+            100: '#fee2e2',
+            200: '#fecaca',
+            300: '#fca5a5',
+            400: '#f87171',
+            500: '#ef4444',
+            600: '#dc2626',
+            700: '#a1020a', 
+            800: '#991b1b',
+            900: '#7f1d1d',
+          },
+          neutral: {
+            50: '#fafafa',
+            100: '#f5f5f5',
+            200: '#e5e5e5',
+            300: '#d4d4d4',
+            400: '#a3a3a3',
+            500: '#8d8d8d', 
+            600: '#737373',
+            700: '#525252',
+            800: '#404040',
+            900: '#262626',
+          }
+        },
+        fontFamily: {        
+          gilroyHeavy: ['Gilroy Heavy', 'sans-serif'],
+          gilroyBold: ['Gilroy Bold', 'sans-serif'],
+          gilroyRegular: ['Gilroy Regular', 'sans-serif'],
+          gilroyLight: ['Gilroy  Light', 'sans-serif']
         },
         keyframes: {
           fadeIn: {
@@ -27,17 +82,10 @@ module.exports = {
           'pop-in': 'popIn 0.5s cubic-bezier(0.4,0,0.2,1)',
         },
       },
-      colors: {
-        defaultWhite: '#ffffff',
-        defaultGrey: 'rgb(141, 141, 141)',
-        defaultBlack: '#000000',
-        defaultRed: '#a1020a',
-        primaryBlue: '#48448c',
-        primaryCyan: '#26C6DA',
-        secondaryBlue: '#3182ce',
-      },
     },
     plugins: [],
   }
+
+
   
   

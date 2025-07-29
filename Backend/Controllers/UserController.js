@@ -1,6 +1,6 @@
 const User = require("../Model/UserModel");
 const crypto = require('crypto');
-const sendVerificationEmail = require('../services/emailService');
+const { sendVerificationEmail } = require('../services/emailService');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { setOtp } = require('../utils/otpStore');
@@ -53,24 +53,18 @@ const addUsers = async (req, res) => {
         return res.status(500).json({ message: "Error hashing password" });
     }
 
-    // Create user
-    let newUser;
-    try {
-        newUser = new User({
-            firstName,
-            lastName,
-            phone,
-            email,
-            dob,
-            address,
-            password: hashedPassword,
-            isVerified: false,
-            role: 'user',
-        });
-        await newUser.save();
-    } catch (err) {
-        return res.status(500).json({ message: "Error saving user" });
-    }
+    // Create user (but do not save yet)
+    let newUser = new User({
+        firstName,
+        lastName,
+        phone,
+        email,
+        dob,
+        address,
+        password: hashedPassword,
+        isVerified: false,
+        role: 'user',
+    });
 
     // Generate OTP and store it temporarily
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
@@ -81,7 +75,14 @@ const addUsers = async (req, res) => {
         await sendVerificationEmail(email, otp);
     } catch (err) {
         console.error("Email sending error:", err);
-        return res.status(500).json({ message: "User created but error sending verification email" });
+        return res.status(500).json({ message: "Error sending verification email. User not registered." });
+    }
+
+    // Only save user if email sent successfully
+    try {
+        await newUser.save();
+    } catch (err) {
+        return res.status(500).json({ message: "Error saving user" });
     }
 
     return res.status(201).json({
@@ -200,7 +201,12 @@ const loginUser = async (req, res, next) => {
 
         // Generate JWT token
         const token = jwt.sign(
-            { id: user._id, role: user.role },
+            {
+                id: user._id, 
+                firstName: user.firstName,
+                role: user.role,
+                email: user.email,
+            },
             JWT_SECRET,
             { expiresIn: '1d' }
         );
@@ -228,14 +234,66 @@ const findUserByEmail = async (email) => {
     return user;
 };
 
+const loginAdmin = async (req, res, next) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        if (!user.isVerified) {
+            return res.status(403).json({ message: 'Please verify your email before logging in' });
+        }
+
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Not an admin.' });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        return res.status(200).json({
+            message: 'Admin login successful',
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                firstName: user.firstName,
+                lastName: user.lastName
+            }
+        });
+    } catch (err) {
+        console.error('Admin login error:', err);
+        return res.status(500).json({ message: 'Server error during admin login' });
+    }
+};
+
+
 
 module.exports = {
-  getAllUsers,
-  addUsers,
-  getById,
-  updateUser,
-  deleteUser,
-  verifyEmail,
-  loginUser,
-  findUserByEmail
+    getAllUsers,
+    addUsers,
+    getById,
+    updateUser,
+    deleteUser,
+    verifyEmail,
+    loginUser,
+    findUserByEmail,
+    loginAdmin
 };
