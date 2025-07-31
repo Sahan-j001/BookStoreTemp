@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import {
-  HiShieldCheck,
+  HiLockClosed,
   HiMail,
-  HiKey,
   HiCheckCircle,
   HiExclamationCircle,
   HiX,
   HiArrowLeft,
-  HiClock
+  HiPaperAirplane
 } from 'react-icons/hi';
 
-const OTPVerification = () => {
-  // For demo purposes, simulating location state
-  const email = 'user@example.com'; // This would normally come from location.state?.email
-  const [otp, setOtp] = useState('');
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
@@ -24,67 +21,49 @@ const OTPVerification = () => {
     setLoading(true);
     setMessage('');
     setError('');
+    
     try {
-      const res = await axios.post('/users/verify-otp', { email, otp });
-      setMessage(res.data.message);
-      setTimeout(() => {
-        // navigate('/'); // Redirect to login - would use navigate in real implementation
-        window.location.href = '/';
-      }, 1500);
+      await axios.post('users/forgot-password', { email });
+      setMessage('Reset link sent to your email. Please check your inbox.');
+      setEmail(''); // Clear the email field on success
     } catch (err) {
       setError(
-        err.response?.data?.message || 'OTP verification failed. Please try again.'
+        err.response?.data?.message || 'Error sending reset link. Please try again.'
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResendOTP = async () => {
-    try {
-      setMessage('');
-      setError('');
-      await axios.post('/users/resend-otp', { email });
-      setMessage('OTP has been resent to your email');
-      setTimeout(() => setMessage(''), 3000);
-    } catch (err) {
-      setError('Failed to resend OTP. Please try again.');
-      setTimeout(() => setError(''), 3000);
-    }
-  };
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-neutral-50 to-primary-50/30">
       <div className="w-full max-w-md">
-        {/* Main Verification Card */}
+        {/* Main Reset Password Card */}
         <div className="overflow-hidden bg-white rounded-2xl border shadow-lg border-neutral-100">
           {/* Header */}
           <div className="p-6 bg-gradient-to-r border-b from-primary-50 to-secondary-50 border-neutral-100">
             <div className="text-center">
               <div className="flex justify-center items-center mx-auto mb-4 w-16 h-16 bg-gradient-to-br rounded-full from-primary-200 to-primary-300">
-                <HiShieldCheck className="w-8 h-8 text-primary-700" />
+                <HiLockClosed className="w-8 h-8 text-primary-700" />
               </div>
               <h1 className="text-2xl font-gilroyHeavy text-neutral-900">
-                OTP Verification
+                Forgot Password
               </h1>
               <p className="mt-2 text-sm text-neutral-600 font-gilroyRegular">
-                Secure your account with verification
+                Reset your password securely
               </p>
             </div>
           </div>
 
           {/* Content */}
           <div className="p-6">
-            {/* Email Display */}
+            {/* Instructions */}
             <div className="p-4 mb-6 rounded-xl border bg-neutral-50 border-neutral-200">
-              <div className="flex items-center space-x-3">
-                <HiMail className="flex-shrink-0 w-5 h-5 text-primary-600" />
+              <div className="flex items-start space-x-3">
+                <HiExclamationCircle className="flex-shrink-0 mt-1 w-5 h-5 text-primary-600" />
                 <div>
                   <p className="text-sm font-gilroyMedium text-neutral-700">
-                    Verification code sent to:
-                  </p>
-                  <p className="font-gilroyBold text-neutral-900">
-                    {email || 'your@email.com'}
+                    Enter your email address and we'll send you a link to reset your password.
                   </p>
                 </div>
               </div>
@@ -117,61 +96,46 @@ const OTPVerification = () => {
               </div>
             )}
 
-            {/* OTP Form */}
-            <div className="space-y-6">
+            {/* Reset Form */}
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <label className="flex items-center space-x-2 text-sm font-gilroyMedium text-neutral-700">
-                  <HiKey className="w-4 h-4 text-primary-600" />
-                  <span>Enter Verification Code</span>
+                  <HiMail className="w-4 h-4 text-primary-600" />
+                  <span>Email Address</span>
                 </label>
                 <input
-                  type="text"
-                  name="otp"
-                  placeholder="Enter 6-digit OTP"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  maxLength={6}
-                  className="px-4 py-3 w-full text-lg tracking-widest text-center bg-white rounded-xl border transition-colors font-gilroyBold border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="px-4 py-3 w-full bg-white rounded-xl border transition-colors font-gilroyRegular border-neutral-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
                 <p className="text-xs text-neutral-500 font-gilroyRegular">
-                  Please enter the 6-digit code sent to your email
+                  We'll send a password reset link to this email
                 </p>
               </div>
 
-              {/* Verify Button */}
+              {/* Send Reset Link Button */}
               <button
-                onClick={handleSubmit}
-                disabled={loading || !otp || otp.length < 6}
+                type="submit"
+                disabled={loading || !email}
                 className="flex justify-center items-center py-3 space-x-2 w-full text-white rounded-xl transition-all duration-200 bg-primary-600 font-gilroyBold hover:bg-primary-700 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
                     <div className="w-5 h-5 rounded-full border-b-2 border-white animate-spin"></div>
-                    <span>Verifying...</span>
+                    <span>Sending...</span>
                   </>
                 ) : (
                   <>
-                    <HiShieldCheck className="w-5 h-5" />
-                    <span>Verify OTP</span>
+                    <HiPaperAirplane className="w-5 h-5" />
+                    <span>Send Reset Link</span>
                   </>
                 )}
               </button>
-
-              {/* Resend OTP */}
-              <div className="text-center">
-                <p className="mb-3 text-sm text-neutral-600 font-gilroyRegular">
-                  Didn't receive the code?
-                </p>
-                <button
-                  onClick={handleResendOTP}
-                  className="flex items-center px-4 py-2 mx-auto space-x-2 rounded-lg border transition-colors text-primary-600 bg-primary-50 border-primary-200 font-gilroyMedium hover:bg-primary-100"
-                >
-                  <HiClock className="w-4 h-4" />
-                  <span>Resend OTP</span>
-                </button>
-              </div>
-            </div>
+            </form>
           </div>
         </div>
 
@@ -182,7 +146,7 @@ const OTPVerification = () => {
             className="flex items-center px-4 py-2 mx-auto space-x-2 bg-white rounded-lg border transition-colors text-neutral-600 border-neutral-200 font-gilroyMedium hover:bg-neutral-50"
           >
             <HiArrowLeft className="w-4 h-4" />
-            <span>Go Back</span>
+            <span>Back to Login</span>
           </button>
         </div>
 
@@ -191,12 +155,12 @@ const OTPVerification = () => {
           <div className="flex items-start space-x-3">
             <HiExclamationCircle className="flex-shrink-0 mt-1 w-5 h-5 text-primary-600" />
             <div>
-              <h3 className="font-gilroyBold text-neutral-900">Security Tips</h3>
+              <h3 className="font-gilroyBold text-neutral-900">Reset Instructions</h3>
               <ul className="mt-2 space-y-1 text-sm text-neutral-600 font-gilroyRegular">
                 <li>• Check your email inbox and spam folder</li>
-                <li>• The OTP is valid for 10 minutes</li>
-                <li>• Don't share your OTP with anyone</li>
-                <li>• Contact support if you continue having issues</li>
+                <li>• The reset link expires in 1 hour</li>
+                <li>• You can request a new link if needed</li>
+                <li>• Contact support if you don't receive the email</li>
               </ul>
             </div>
           </div>
@@ -206,4 +170,4 @@ const OTPVerification = () => {
   );
 };
 
-export default OTPVerification;
+export default ForgotPassword;

@@ -17,6 +17,8 @@ import AdminOrdersDashboard from './Pages/AdminOrdersDashboard/AdminOrdersDashbo
 import UserProfile from './Pages/UserProfile/UserProfile';
 import AdminRoute from './Components/PrivateRoutes/AdminRoutes';
 import AdminDashboard from './Pages/AdminDashboard/AdminDashboard';
+import ForgotPassword from './Pages/ForgotPassword/ForgotPassword';
+import ResetPassword from './Pages/ResetPassword/ResetPassword';
 
 function App() {
 
@@ -37,6 +39,8 @@ function App() {
         <Route path="/orders" element={<PrivateRoute><OrdersPage /></PrivateRoute>} />
         <Route path="/user-profile/:id" element={<UserProfile />} />
         <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard/></AdminRoute>}/>
+        <Route path="/forgot-password" element={<ForgotPassword/>} />
+        <Route path="/reset-password/:token" element={<ResetPassword/>}/>
       </Routes>
     </div>
   );

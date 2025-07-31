@@ -16,6 +16,10 @@ router.delete("/:id", UserController.deleteUser);
 router.post('/login', UserController.loginUser);
 router.post('/verify-otp', AuthController.verifyOtp);
 router.post('/admin/login', UserController.loginAdmin);
+router.post('/forgot-password', AuthController.forgotPassword);
+router.post('/reset-password/:token', AuthController.resetPassword);
+router.post('/refresh-token', UserController.refreshAccessToken);
+
 
 //export
 module.exports = router;
